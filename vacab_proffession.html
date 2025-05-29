@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Révision des Mots - Famille en Espagnol</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --primary-hover: #2563eb;
+      --secondary-color: #6b7280;
+      --secondary-hover: #4b5563;
+      --text-color: #1f2937;
+      --bg-color: #f8fafc;
+      --card-color: #ffffff;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --border-radius: 16px;
+      --difficult-color: #f59e0b;
+      --difficult-hover: #d97706;
+      --success-color: #10b981;
+      --error-color: #ef4444;
+      --disabled-bg-color: #f3f4f6;
+      --disabled-text-color: #9ca3af;
+      --disabled-border-color: #d1d5db;
+      --border-color: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      color: var(--text-color);
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .sidebar {
+      background: var(--card-color);
+      padding: 24px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sidebar-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .sidebar-section h3 {
+      margin: 0 0 12px 0;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--secondary-color);
+    }
+
+    .sidebar-btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border-color);
+      background: white;
+      color: var(--text-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      text-align: left;
+      transition: all 0.2s ease;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-btn:hover:not(:disabled) {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+      transform: translateY(-1px);
+    }
+
+    .sidebar-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .sidebar-btn:disabled {
+      background-color: var(--disabled-bg-color);
+      color: var(--disabled-text-color);
+      border-color: var(--disabled-border-color);
+      cursor: not-allowed;
+    }
+
+    .main-card {
+      background: var(--card-color);
+      padding: 32px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .main-card h1 {
+      margin: 0 0 32px 0;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .progress-container {
+      margin-bottom: 32px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      width: 100%;
+      background-color: var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 0.875rem;
+      color: var(--secondary-color);
+      font-weight: 500;
+    }
+
+    .word-container {
+      margin: 32px 0;
+      padding: 40px 24px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-radius: var(--border-radius);
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .word {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 12px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    #translation {
+      font-size: 1.25rem;
+      color: var(--secondary-color);
+      min-height: 1.5em;
+      font-weight: 500;
+      margin-bottom: 16px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    #translation.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sound-btn {
+      font-size: 2rem;
+      background: var(--primary-color);
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      color: white;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sound-btn:hover:not(:disabled) {
+      background: var(--primary-hover);
+      transform: scale(1.1);
+    }
+    .sound-btn:disabled {
+      background: var(--disabled-bg-color);
+      color: var(--disabled-text-color);
+      cursor: not-allowed;
+    }
+
+    .actions-bar {
+      margin-bottom: 32px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: none;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 180px;
+      font-size: 0.9rem;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .action-btn:disabled {
+      background-color: var(--disabled-bg-color) !important;
+      color: var(--disabled-text-color) !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .mark-hard {
+      background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
+    }
+    .mark-hard.is-hard {
+      background: linear-gradient(135deg, var(--difficult-color), var(--difficult-hover));
+    }
+
+    .quiz-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .navigation-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .nav-btn {
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 140px;
+      font-size: 0.9rem;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .nav-btn:disabled {
+      background-color: var(--disabled-bg-color) !important;
+      color: var(--disabled-text-color) !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .nav-btn.primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+      color: white;
+    }
+
+    .nav-btn.secondary {
+      background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
+      color: white;
+    }
+
+    .word-list-container {
+      background: var(--bg-color);
+      padding: 24px;
+      border-radius: var(--border-radius);
+      text-align: left;
+    }
+
+    .word-list-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-color);
+    }
+
+    .word-list {
+      max-height: 300px;
+      overflow-y: auto;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .word-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.9rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .word-item:hover {
+      background-color: var(--bg-color);
+    }
+
+    .word-item:last-child {
+      border-bottom: none;
+    }
+
+    .word-item .text {
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    .word-item .difficulty-indicator {
+      background: var(--difficult-color);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .empty-list-message {
+      color: var(--secondary-color);
+      font-style: italic;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* Quiz Mode Styles */
+    .quiz-mode .word-container {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .quiz-option {
+      padding: 16px 20px;
+      border: 2px solid var(--border-color);
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .quiz-option.correct {
+      border-color: var(--success-color);
+      background: var(--success-color);
+      color: white;
+    }
+
+    .quiz-option.incorrect {
+      border-color: var(--error-color);
+      background: var(--error-color);
+      color: white;
+    }
+
+    .quiz-result {
+      margin-top: 16px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    .quiz-result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .quiz-result.correct {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .quiz-result.incorrect {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .sidebar {
+        position: static;
+        order: 2;
+      }
+
+      .main-card {
+        padding: 24px;
+      }
+
+      .word {
+        font-size: 2rem;
+      }
+
+      .quiz-options {
+        grid-template-columns: 1fr;
+      }
+
+      .actions-bar {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .navigation-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Success animations */
+    @keyframes bounce {
+      0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0,0,0);
+      }
+      40%, 43% {
+        transform: translate3d(0, -8px, 0);
+      }
+      70% {
+        transform: translate3d(0, -4px, 0);
+      }
+      90% {
+        transform: translate3d(0, -2px, 0);
+      }
+    }
+
+    .bounce {
+      animation: bounce 1s ease;
+    }
+  </style>
+</head>
+<body>
+<main class="app-container">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <h3>Mode d'étude</h3>
+      <button class="sidebar-btn" data-difficulty="all">
+        📚 Tous les mots
+      </button>
+      <button class="sidebar-btn" data-difficulty="hard">
+        🔥 Mots difficiles
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <h3>Actions</h3>
+      <button class="sidebar-btn" id="translateBtn">
+        🔤 Traduire le mot
+      </button>
+      <button class="sidebar-btn" id="quizBtn">
+        🧠 Mode Quiz
+      </button>
+    </div>
+    <div class="sidebar-section">
+      <h3>Sauvegarde</h3>
+      <button class="sidebar-btn" id="saveBtn">
+        💾 Enregistrer Progrès
+      </button>
+      <button class="sidebar-btn" id="pdfBtn">
+        📄 Exporter en PDF
+      </button>
+    </div>
+  </aside>
+
+  <section class="main-card">
+    <h1>Famille en Espagnol</h1>
+    
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">Mot 1 sur X</div>
+    </div>
+
+    <div class="word-container" id="wordContainer">
+      <div class="word" id="wordElement">Chargement...</div>
+      <div id="translation"></div>
+      <button class="sound-btn" id="soundBtn" aria-label="Écouter la prononciation">🔊</button>
+      
+      <!-- Quiz options (hidden by default) -->
+      <div class="quiz-options" id="quizOptions" style="display: none;"></div>
+      <div class="quiz-result" id="quizResult"></div>
+    </div>
+
+    <div class="actions-bar">
+      <button class="action-btn mark-hard" id="markHardBtn">Marquer Difficile</button>
+      <button class="action-btn quiz-btn" id="quizModeBtn">Mode Quiz</button>
+    </div>
+
+    <div class="navigation-buttons">
+      <button class="nav-btn secondary" id="prevBtn" disabled>← Précédent</button>
+      <button class="nav-btn primary" id="nextBtn">Suivant →</button>
+    </div>
+
+    <div class="word-list-container">
+      <h3 class="word-list-title" id="wordListTitle">Liste des mots (Tous)</h3>
+      <div class="word-list" id="wordList">
+        <p class="empty-list-message">Aucun mot à afficher.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // --- DOM Elements ---
+  const wordElement = document.getElementById("wordElement");
+  const translationElement = document.getElementById("translation");
+  const progressTextElement = document.getElementById("progressText");
+  const progressFillElement = document.getElementById("progressFill");
+  const markHardBtn = document.getElementById("markHardBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const soundBtn = document.getElementById("soundBtn");
+  const translateBtn = document.getElementById("translateBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const pdfBtn = document.getElementById("pdfBtn");
+  const wordListTitleElement = document.getElementById("wordListTitle");
+  const wordListElement = document.getElementById("wordList");
+  const difficultyFilterButtons = document.querySelectorAll(".sidebar-btn[data-difficulty]");
+  const quizBtn = document.getElementById("quizBtn");
+  const quizModeBtn = document.getElementById("quizModeBtn");
+  const wordContainer = document.getElementById("wordContainer");
+  const quizOptions = document.getElementById("quizOptions");
+  const quizResult = document.getElementById("quizResult");
+
+  // --- Data ---
+
+const initialWordTexts = [
+  "El zapatero", "El carpintero", "El conserje", "El director - el supervisor general", "El taxista",
+  "El comerciante - el revendedor", "El panadero", "el optico", "El cajero", "el recolector",
+  "el tendero", "el profesor", "el enfermero", "el arquitecto", "la ama de casa", "la esteticista",
+  "el actor", "el estudiante", "el atleta", "el musico", "el artista", "El banquero", "El cantante",
+  "el azafato", "el escritor", "El director", "El Científico", "El piloto", "El fotógrafo", "Un ingeniero",
+  "El funcionario", "El contable", "El granjero", "el librero", "el poeta", "la poetisa", "el héroe",
+  "la heroína", "el rey", "la reina", "el jefe", "el testigo", "el maniquí", "el cónsul", "ejército (m)",
+  "el sacerdote", "la secretaria", "el cocinero", "el cartero", "el camarero", "El peluquero", "el pinche"
+];
+
+const translationMap = {
+  "El zapatero": "le cordonnier",
+  "El carpintero": "le menuisier",
+  "El conserje": "le concierge",
+  "El director - el supervisor general": "le directeur / le superviseur général",
+  "El taxista": "le chauffeur de taxi",
+  "El comerciante - el revendedor": "le commerçant / le revendeur",
+  "El panadero": "le boulanger",
+  "el optico": "l'opticien",
+  "El cajero": "le caissier",
+  "el recolector": "le collecteur",
+  "el tendero": "le commerçant",
+  "el profesor": "le professeur",
+  "el enfermero": "l'infirmier",
+  "el arquitecto": "l'architecte",
+  "la ama de casa": "la femme au foyer",
+  "la esteticista": "l'esthéticienne",
+  "el actor": "l'acteur",
+  "el estudiante": "l'étudiant",
+  "el atleta": "l'athlète",
+  "el musico": "le musicien",
+  "el artista": "l'artiste",
+  "El banquero": "le banquier",
+  "El cantante": "le chanteur",
+  "el azafato": "l'hôtesse / l'hôtess (masculin)",
+  "el escritor": "l'écrivain",
+  "El director": "le réalisateur",
+  "El Científico": "le scientifique",
+  "El piloto": "le pilote",
+  "El fotógrafo": "le photographe",
+  "Un ingeniero": "un ingénieur",
+  "El funcionario": "l'employé public",
+  "El contable": "le comptable",
+  "El granjero": "le fermier",
+  "el librero": "le libraire",
+  "el poeta": "le poète",
+  "la poetisa": "la poétesse",
+  "el héroe": "l'héros",
+  "la heroína": "l'héroïne",
+  "el rey": "le roi",
+  "la reina": "la reine",
+  "el jefe": "le chef",
+  "el testigo": "le témoin",
+  "el maniquí": "le mannequin",
+  "el cónsul": "le consul",
+  "ejército (m)": "l'armée",
+  "el sacerdote": "le prêtre",
+  "la secretaria": "la secrétaire",
+  "el cocinero": "le cuisinier",
+  "el cartero": "le facteur",
+  "el camarero": "le serveur",
+  "El peluquero": "le coiffeur",
+  "el pinche": "l'aide-cuisinier"
+};
+
+  let allWords = [];
+  let currentFilteredWords = [];
+  let currentIndex = 0;
+  let currentDifficultyFilter = 'all';
+  let spanishVoices = [];
+  let isQuizMode = false;
+  let currentQuizAnswer = null;
+  let quizScore = { correct: 0, total: 0 };
+
+  // --- Functions ---
+  function initializeWords() {
+    // Use in-memory storage instead of localStorage for Claude artifacts
+    allWords = initialWordTexts.map((text, id) => ({ id, text, isHard: false }));
+  }
+
+  function setupVoices() {
+    spanishVoices = speechSynthesis.getVoices().filter(v => v.lang.startsWith("es"));
+    if (!spanishVoices.length && speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = setupVoices;
+    }
+  }
+
+  function speak(text) {
+    if (!text || !speechSynthesis) return;
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "es-ES";
+    if (spanishVoices.length > 0) {
+      utter.voice = spanishVoices[0];
+    }
+    speechSynthesis.speak(utter);
+  }
+
+  function generateQuizOptions(correctAnswer) {
+    const allTranslations = Object.values(translationMap);
+    const options = [correctAnswer];
+    
+    while (options.length < 4) {
+      const randomTranslation = allTranslations[Math.floor(Math.random() * allTranslations.length)];
+      if (!options.includes(randomTranslation)) {
+        options.push(randomTranslation);
+      }
+    }
+    
+    // Shuffle options
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    
+    return options;
+  }
+
+  function displayQuizOptions() {
+    const currentWord = currentFilteredWords[currentIndex];
+    if (!currentWord) return;
+
+    const correctAnswer = translationMap[currentWord.text];
+    currentQuizAnswer = correctAnswer;
+    const options = generateQuizOptions(correctAnswer);
+
+    quizOptions.innerHTML = '';
+    options.forEach(option => {
+      const button = document.createElement('button');
+      button.className = 'quiz-option';
+      button.textContent = option;
+      button.addEventListener('click', () => handleQuizAnswer(option, correctAnswer));
+      quizOptions.appendChild(button);
+    });
+
+    quizOptions.style.display = 'grid';
+    quizResult.className = 'quiz-result';
+    quizResult.style.display = 'none';
+  }
+
+  function handleQuizAnswer(selectedAnswer, correctAnswer) {
+    const options = document.querySelectorAll('.quiz-option');
+    options.forEach(option => {
+      option.style.pointerEvents = 'none';
+      if (option.textContent === correctAnswer) {
+        option.classList.add('correct');
+      } else if (option.textContent === selectedAnswer && selectedAnswer !== correctAnswer) {
+        option.classList.add('incorrect');
+      }
+    });
+
+    quizScore.total++;
+    const isCorrect = selectedAnswer === correctAnswer;
+    
+    if (isCorrect) {
+      quizScore.correct++;
+      quizResult.textContent = '🎉 Correct ! Très bien !';
+      quizResult.className = 'quiz-result correct show';
+      wordElement.classList.add('bounce');
+      setTimeout(() => wordElement.classList.remove('bounce'), 1000);
+    } else {
+      quizResult.textContent = `❌ Incorrect. La bonne réponse est : ${correctAnswer}`;
+      quizResult.className = 'quiz-result incorrect show';
+      
+      // Auto-mark as difficult if wrong
+      const wordInAllWords = allWords.find(w => w.id === currentFilteredWords[currentIndex].id);
+      if (wordInAllWords && !wordInAllWords.isHard) {
+        wordInAllWords.isHard = true;
+        updateWordDisplay();
+        renderWordList();
+      }
+    }
+
+    quizResult.style.display = 'block';
+    
+    // Auto-advance after 2 seconds
+    setTimeout(() => {
+      if (currentIndex < currentFilteredWords.length - 1) {
+        nextBtn.click();
+      } else {
+        showQuizSummary();
+      }
+    }, 2000);
+  }
+
+  function showQuizSummary() {
+    const percentage = Math.round((quizScore.correct / quizScore.total) * 100);
+    quizResult.textContent = `Quiz terminé ! Score : ${quizScore.correct}/${quizScore.total} (${percentage}%)`;
+    quizResult.className = 'quiz-result show';
+    quizResult.style.background = percentage >= 70 ? '#d1fae5' : '#fee2e2';
+    quizResult.style.color = percentage >= 70 ? '#065f46' : '#991b1b';
+  }
+
+  function toggleQuizMode() {
+    isQuizMode = !isQuizMode;
+    
+    if (isQuizMode) {
+      wordContainer.classList.add('quiz-mode');
+      quizModeBtn.textContent = '📚 Mode Normal';
+      translateBtn.style.display = 'none';
+      displayQuizOptions();
+      quizScore = { correct: 0, total: 0 };
+    } else {
+      wordContainer.classList.remove('quiz-mode');
+      quizModeBtn.textContent = '🧠 Mode Quiz';
+      translateBtn.style.display = 'block';
+      quizOptions.style.display = 'none';
+      quizResult.style.display = 'none';
+      translationElement.textContent = '';
+      translationElement.classList.remove('show');
+    }
+  }
+
+  function updateWordDisplay() {
+    const wordObj = currentFilteredWords[currentIndex];
+    const hasWords = currentFilteredWords.length > 0;
+    const currentWordText = wordObj?.text || "Aucun mot à afficher";
+
+    wordElement.textContent = currentWordText;
+    
+    if (!isQuizMode) {
+      translationElement.textContent = "";
+      translationElement.classList.remove('show');
+      quizOptions.style.display = 'none';
+      quizResult.style.display = 'none';
+    } else if (hasWords) {
+      displayQuizOptions();
+    }
+
+    progressTextElement.textContent = hasWords ? `Mot ${currentIndex + 1} sur ${currentFilteredWords.length}` : "0 mots";
+    progressFillElement.style.width = hasWords ? `${((currentIndex + 1) / currentFilteredWords.length) * 100}%` : "0%";
+
+    markHardBtn.textContent = wordObj?.isHard ? "Marqué Difficile ✓" : "Marquer Difficile";
+    markHardBtn.classList.toggle("is-hard", !!wordObj?.isHard);
+
+    // Button states
+    prevBtn.disabled = currentIndex === 0 || !hasWords;
+    nextBtn.disabled = currentIndex >= currentFilteredWords.length - 1 || !hasWords;
+    soundBtn.disabled = !hasWords || !wordObj?.text;
+    translateBtn.disabled = !hasWords || !wordObj?.text;
+    markHardBtn.disabled = !hasWords || !wordObj?.text;
+  }
+
+  function filterWords(difficulty) {
+    currentDifficultyFilter = difficulty;
+    currentFilteredWords = difficulty === 'all' ? [...allWords] : allWords.filter(w => w.isHard);
+    currentIndex = 0;
+    updateWordDisplay();
+    renderWordList();
+    
+    // Update sidebar buttons
+    difficultyFilterButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.difficulty === difficulty);
+    });
+  }
+
+  function renderWordList() {
+    const titleText = currentDifficultyFilter === 'all' ? 'Liste des mots (Tous)' : 'Liste des mots (Difficiles)';
+    wordListTitleElement.textContent = titleText;
+
+    if (currentFilteredWords.length === 0) {
+      wordListElement.innerHTML = '<p class="empty-list-message">Aucun mot à afficher.</p>';
+      return;
+    }
+
+    wordListElement.innerHTML = '';
+    currentFilteredWords.forEach((word, index) => {
+      const wordItem = document.createElement('div');
+      wordItem.className = 'word-item';
+      
+      const textSpan = document.createElement('span');
+      textSpan.className = 'text';
+      textSpan.textContent = `${word.text} → ${translationMap[word.text]}`;
+      
+      wordItem.appendChild(textSpan);
+      
+      if (word.isHard) {
+        const difficultyIndicator = document.createElement('span');
+        difficultyIndicator.className = 'difficulty-indicator';
+        difficultyIndicator.textContent = 'Difficile';
+        wordItem.appendChild(difficultyIndicator);
+      }
+      
+      wordListElement.appendChild(wordItem);
+    });
+  }
+
+  function showTranslation() {
+    const currentWord = currentFilteredWords[currentIndex];
+    if (!currentWord || isQuizMode) return;
+    
+    const translation = translationMap[currentWord.text];
+    if (translation) {
+      translationElement.textContent = translation;
+      translationElement.classList.add('show');
+    }
+  }
+
+  function toggleMarkHard() {
+    const currentWord = currentFilteredWords[currentIndex];
+    if (!currentWord) return;
+    
+    const wordInAllWords = allWords.find(w => w.id === currentWord.id);
+    if (wordInAllWords) {
+      wordInAllWords.isHard = !wordInAllWords.isHard;
+      
+      // Update current filtered words
+      const currentWordInFiltered = currentFilteredWords.find(w => w.id === currentWord.id);
+      if (currentWordInFiltered) {
+        currentWordInFiltered.isHard = wordInAllWords.isHard;
+      }
+      
+      // If we're viewing only hard words and this word is no longer hard, remove it
+      if (currentDifficultyFilter === 'hard' && !wordInAllWords.isHard) {
+        filterWords('hard');
+      } else {
+        updateWordDisplay();
+        renderWordList();
+      }
+    }
+  }
+
+  function navigateNext() {
+    if (currentIndex < currentFilteredWords.length - 1) {
+      currentIndex++;
+      updateWordDisplay();
+      translationElement.classList.remove('show');
+    }
+  }
+
+  function navigatePrev() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateWordDisplay();
+      translationElement.classList.remove('show');
+    }
+  }
+
+  function saveProgress() {
+    // In Claude artifacts, we can't use localStorage, so we'll just show a message
+    alert('Progression sauvegardée en mémoire pour cette session !');
+  }
+
+  function exportToPDF() {
+    if (typeof jsPDF === 'undefined') {
+      alert('La fonction PDF n\'est pas disponible.');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(20);
+    doc.text('Vocabulaire - Famille en Espagnol', 20, 30);
+    
+    doc.setFontSize(12);
+    let yPosition = 50;
+    
+    const wordsToExport = currentDifficultyFilter === 'all' ? allWords : allWords.filter(w => w.isHard);
+    
+    wordsToExport.forEach((word, index) => {
+      if (yPosition > 280) {
+        doc.addPage();
+        yPosition = 30;
+      }
+      
+      const line = `${index + 1}. ${word.text} → ${translationMap[word.text]}${word.isHard ? ' (Difficile)' : ''}`;
+      doc.text(line, 20, yPosition);
+      yPosition += 10;
+    });
+    
+    const filename = currentDifficultyFilter === 'all' ? 'vocabulaire-famille-espagnol.pdf' : 'vocabulaire-famille-difficiles.pdf';
+    doc.save(filename);
+  }
+
+  // --- Event Listeners ---
+  translateBtn.addEventListener('click', showTranslation);
+  markHardBtn.addEventListener('click', toggleMarkHard);
+  nextBtn.addEventListener('click', navigateNext);
+  prevBtn.addEventListener('click', navigatePrev);
+  soundBtn.addEventListener('click', () => {
+    const currentWord = currentFilteredWords[currentIndex];
+    if (currentWord) speak(currentWord.text);
+  });
+  
+  saveBtn.addEventListener('click', saveProgress);
+  pdfBtn.addEventListener('click', exportToPDF);
+  
+  quizBtn.addEventListener('click', toggleQuizMode);
+  quizModeBtn.addEventListener('click', toggleQuizMode);
+  
+  difficultyFilterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterWords(btn.dataset.difficulty);
+    });
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    
+    switch(e.key) {
+      case 'ArrowLeft':
+        if (!prevBtn.disabled) navigatePrev();
+        break;
+      case 'ArrowRight':
+        if (!nextBtn.disabled) navigateNext();
+        break;
+      case ' ':
+        e.preventDefault();
+        if (!isQuizMode) showTranslation();
+        break;
+      case 'Enter':
+        e.preventDefault();
+        const currentWord = currentFilteredWords[currentIndex];
+        if (currentWord) speak(currentWord.text);
+        break;
+      case 'h':
+      case 'H':
+        if (!markHardBtn.disabled) toggleMarkHard();
+        break;
+      case 'q':
+      case 'Q':
+        toggleQuizMode();
+        break;
+    }
+  });
+
+  // --- Initialization ---
+  initializeWords();
+  setupVoices();
+  filterWords('all');
+  
+  // Set first filter button as active
+  if (difficultyFilterButtons.length > 0) {
+    difficultyFilterButtons[0].classList.add('active');
+  }
+});
+</script>
+</body>
+</html>
